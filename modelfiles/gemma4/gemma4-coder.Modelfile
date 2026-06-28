@@ -1,0 +1,52 @@
+FROM gemma4:12b
+
+# ── Hardware ──────────────────────────────────────────────────────────────────
+# num_ctx is 32768 (see Context below) for headroom. At 32K the model no longer fits
+# 100% on the 8GB GPU, so num_gpu is left to AUTO-offload (~74% GPU / 26% CPU).
+# num_batch 256 keeps the compute buffer small so auto-offload keeps as many layers
+# on GPU as possible. (To run 100% on GPU instead: drop num_ctx to 16384 and add
+# `PARAMETER num_gpu 99` — but that's too tight once memory + web tools are loaded;
+# real sessions hit ~24K input tokens.)
+PARAMETER num_batch    256
+PARAMETER num_thread   16
+
+# ── Context & generation ──────────────────────────────────────────────────────
+# num_ctx 65536: raised from 32K because tool schemas + hermes-memory tools + tool
+# outputs filled 32K fast, forcing pi to compact constantly. Gemma 4's sliding-window
+# attention keeps the KV cache tiny regardless of num_ctx, so a bigger window costs
+# little VRAM (and system RAM is plentiful). Trade-off: long sessions get slower per turn.
+PARAMETER num_ctx      65536
+PARAMETER num_predict  8192
+
+# ── Sampling ──────────────────────────────────────────────────────────────────
+# temperature lowered 0.6 → 0.3 for decisiveness: at higher temps this 12B model
+# tends to second-guess itself ("Wait… Actually… Wait…") in agentic loops.
+PARAMETER temperature   0.3
+PARAMETER top_p         0.95
+PARAMETER top_k         40
+PARAMETER repeat_penalty 1.05
+
+PARAMETER stop "<end_of_turn>"
+
+# ── Template: inherit Gemma's built-in chat template from the base model.
+# (The previous custom template injected non-Gemma <|think|>/<channel|> tokens,
+#  which made the model emit only a reasoning block and no actual content.)
+
+# ── System prompt: coding focus only ─────────────────────────────────────────
+SYSTEM """You are an expert software engineer acting as a coding agent.
+
+Be decisive. Once you have enough context, take the next concrete action (call a tool or
+make the edit) or ask one short question — do NOT deliberate at length, restate the
+situation, or talk yourself in and out of decisions. Use tools to act rather than
+narrating what you intend to do; if you say you will do something, do it in the same turn.
+Keep responses concise.
+
+When working on code:
+- Read and fully understand all context before making changes
+- Plan which files need to change before writing any code
+- Write complete implementations — never truncate with "...", "rest of file", or placeholder comments
+- Prefer editing existing files over creating new ones
+- Write idiomatic, production-quality code for the language in use
+- Handle errors explicitly; do not swallow exceptions
+- When using tools, call one at a time and wait for the result before proceeding
+- After changes, briefly note what tests or checks should be run"""
