@@ -1,0 +1,15 @@
+kubernetes:
+  hosts:
+    cp1:
+      ansible_host: 10.71.212.11
+    cp2:
+      ansible_host: 10.71.212.12
+    cp3:
+      ansible_host: 10.71.212.13
+    worker1:
+      ansible_host: 10.71.212.21
+    worker2:
+      ansible_host: 10.71.212.22
+    worker3:
+      ansible_host: 10.71.212.23
+

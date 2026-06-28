@@ -1,0 +1,46 @@
+---
+- name: Install Kubernetes
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Create apt keyrings directory
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Download kubernetes repo gpg key
+      ansible.builtin.get_url:
+        url: https://pkgs.k8s.io/core:/stable:/v1.36/deb/Release.key
+        dest: /tmp/k8s-release.key
+        mode: '0644'
+
+    - name: Dearmor and install kubernetes gpg key
+      ansible.builtin.shell:
+        cmd: gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg /tmp/k8s-release.key
+        creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Add kubernetes repo to sources.list
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.36/deb/ /"
+        state: present
+        filename: kubernetes.list
+
+    - name: Install kubernetes packages
+      ansible.builtin.apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: true
+      vars:
+        packages:
+          - kubelet
+          - kubeadm
+          - kubectl
+
+    - name: Restart kubelet
+      ansible.builtin.service:
+        name: kubelet
+        daemon_reload: true
+        state: restarted
+        enabled: true

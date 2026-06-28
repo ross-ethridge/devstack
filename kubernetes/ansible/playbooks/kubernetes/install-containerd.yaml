@@ -1,0 +1,33 @@
+---
+- name: Install Container Runtime
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install ContianerD
+      ansible.builtin.apt:
+        name: containerd
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Load modules into current session
+      community.general.modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - br_netfilter
+        - overlay
+
+    - name: Configure sysctl networking parameters
+      ansible.posix.sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: true
+      loop:
+        - { key: 'net.bridge.bridge-nf-call-iptables', value: '1' }
+        - { key: 'net.bridge.bridge-nf-call-ip6tables', value: '1' }
+        - { key: 'net.ipv4.ip_forward', value: '1' }
+        - { key: 'net.ipv6.conf.all.forwarding', value: '1' }
+

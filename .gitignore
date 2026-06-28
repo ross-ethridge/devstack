@@ -1,0 +1,6 @@
+**.claude*
+**.ruby*
+**.terraform*
+**.tfstate*
+**.tfvars
+**tfplan

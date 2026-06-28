@@ -1,0 +1,23 @@
+---
+- name: Upgrade Packages
+  become: true
+  hosts: all
+
+  tasks:
+    - name: Apt upgrade
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: true
+        install_recommends: true
+
+    - name: Install packages
+      ansible.builtin.apt:
+        name:
+          - build-essential
+          - vim
+          - curl
+          - git
+          - wget
+
+    - name: Reboot
+      ansible.builtin.reboot:
