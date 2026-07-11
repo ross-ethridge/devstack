@@ -14,7 +14,7 @@ provider "lxd" {
   remote {
     name     = "app1"
     address  = var.lxd_server
-    token = var.tofu_client
+    token = var.tofu_token
     default  = true
   }
 }

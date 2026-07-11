@@ -1,4 +1,4 @@
-variable "tofu_client" { 
+variable "tofu_token" { 
     description = "The client token for the LXD server"
     type        = string
 }
