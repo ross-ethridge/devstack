@@ -4,3 +4,5 @@
 **.tfstate*
 **.tfvars
 **tfplan
+**inventory.yaml
+**secrets.yaml
