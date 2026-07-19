@@ -1,9 +1,11 @@
+**.vscode*
 **.claude*
 **.ruby*
 **.terraform*
 **.tfstate*
 **.tfvars
 **tfplan
-**inventory.yaml
 **secrets.yaml
 **.env
+**/group_vars/*
+!**/group_vars/.include_dir
