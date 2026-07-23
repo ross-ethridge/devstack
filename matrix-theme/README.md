@@ -6,7 +6,7 @@ A Matrix "digital rain" theme for [oh-my-bash](https://github.com/ohmybash/oh-my
 
 ```
 [ ｱｷﾒﾜﾕ ] [ user@host ] [ ~ ] [ ::git ✓ ] [ 01:39:58 ]
-💊 › your command here
+ › your command here
 ```
 
 - **Line 1:** bold neon katakana rain · `user@host` · path · git branch with `✓`/`✗` · clock
@@ -16,7 +16,7 @@ A Matrix "digital rain" theme for [oh-my-bash](https://github.com/ohmybash/oh-my
 
 ## Install
 
-Requires oh-my-bash and **bash 4+**.
+Requires oh-my-bash, **bash 4+**, and a [Nerd Font](https://www.nerdfonts.com/) (v3+) installed and selected in your terminal — the pill is the `nf-md-pill` glyph (`U+F0402`), not the Unicode 💊 emoji. Emoji are drawn from color fonts (Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji) whose glyph colors are baked in and ignore ANSI recoloring; a Nerd Font icon is a plain vector glyph, so the blue/red pill renders correctly on any terminal — Linux, macOS, and Windows Terminal (including over WSL) — as long as the font is installed. Without a Nerd Font, the pill shows as a missing-glyph box.
 
 ```bash
 git clone git@github.com:ross-ethridge/matrix-theme.git
@@ -48,7 +48,7 @@ The theme is pure bash + ANSI and runs fine on macOS, but:
   ```bash
   [[ -r ~/.bashrc ]] && source ~/.bashrc
   ```
-- **The pill color** relies on the terminal honoring an ANSI color + `U+FE0E` text-presentation selector on the 💊 emoji. Linux VTE terminals (Ptyxis/GNOME) do this. macOS Apple Color Emoji does **not** — Terminal.app/iTerm2 bake the pill's gold/red colors in and ignore ANSI. The theme detects macOS (`$OSTYPE`) and adapts: the pill keeps its native colors and the blue/red success/error signal is carried by the `›` arrow instead.
+- **The pill** needs a Nerd Font installed and selected in Terminal.app/iTerm2's profile, same as any other platform — see [Install](#install).
 - `eza` via `brew install eza`.
 
 ## License

@@ -9,3 +9,6 @@
 **.env
 **/group_vars/*
 !**/group_vars/.include_dir
+**/node_modules/*
+**package.json
+**package-lock.json

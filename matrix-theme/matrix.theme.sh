@@ -13,14 +13,6 @@ _matrix_reset='\[\e[0m\]'
 _matrix_blue='\[\e[38;5;33m\]'      # blue pill  - git clean
 _matrix_red='\[\e[38;5;196m\]'      # red pill   - git dirty
 
-# Detect macOS — Apple Color Emoji ignores ANSI recoloring, so the prompt
-# adapts (see _omb_theme_PROMPT_COMMAND). $OSTYPE is "darwin*" on macOS.
-case "$OSTYPE" in
-  darwin*) _matrix_is_mac=1 ;;
-  *)       _matrix_is_mac=0 ;;
-esac
-
-
 # SCM prompt styling
 SCM_THEME_PROMPT_PREFIX="::"
 SCM_THEME_PROMPT_SUFFIX=""
@@ -113,26 +105,22 @@ function _omb_theme_PROMPT_COMMAND() {
 
   PS1+=" [ ${_matrix_dark}$(date +%H:%M:%S)${_matrix_dim} ]"
 
-  # line 2: 💊 ›  — blue normally, red (+exitcode) on failure.
+  # line 2: pill ›  — blue normally, red (+exitcode) on failure.
   # Trailing dim green => dim-green typed input.
-  if ((_matrix_is_mac)); then
-    # macOS Apple Color Emoji can't be ANSI-recolored, so the pill keeps its
-    # native colors and the blue/red signal is carried by the › arrow.
-    local glyph=$'\xf0\x9f\x92\x8a'
-    if ((exitcode == 0)); then
-      PS1+=$'\n'"${glyph}"' \[\e[38;5;33m\]› \[\e[38;5;34m\]'
-    else
-      PS1+=$'\n'"${glyph}"' \[\e[38;5;196m\]›'"${exitcode}"' \[\e[38;5;34m\]'
-    fi
+  # Uses the Nerd Font "pill" icon (nf-md-pill, U+F0402) rather than the
+  # Unicode 💊 emoji: emoji are rendered via color fonts (Segoe UI Emoji,
+  # Apple Color Emoji, Noto Color Emoji) whose glyph colors are baked into
+  # the font and ignore ANSI SGR — on every terminal, not just some. A Nerd
+  # Font icon is a plain vector glyph, so it recolors correctly everywhere.
+  # Verified against CaskaydiaCoveNerdFont's actual cmap (glyph name
+  # "md-pill" at this codepoint) — a single diagonal capsule, closest
+  # monochrome match to the blue-pill/red-pill reference.
+  # Requires a Nerd Font to be installed and selected in the terminal.
+  local glyph=$'\Uf0402'
+  if ((exitcode == 0)); then
+    PS1+=$'\n\[\e[38;5;33m\]'"${glyph}"'\[\e[0m\] \[\e[38;5;46m\]› \[\e[38;5;34m\]'
   else
-    # Linux/VTE: ANSI-recolor the pill itself via the text-presentation
-    # selector (U+FE0E), which requests a monochrome, recolorable glyph.
-    local glyph=$'\xf0\x9f\x92\x8a\xef\xb8\x8e'
-    if ((exitcode == 0)); then
-      PS1+=$'\n\[\e[38;5;33m\]'"${glyph}"'\[\e[0m\] \[\e[38;5;46m\]› \[\e[38;5;34m\]'
-    else
-      PS1+=$'\n\[\e[38;5;196m\]'"${glyph}"'\[\e[0m\] \[\e[38;5;196m\]›'"${exitcode}"' \[\e[38;5;34m\]'
-    fi
+    PS1+=$'\n\[\e[38;5;196m\]'"${glyph}"'\[\e[0m\] \[\e[38;5;196m\]›'"${exitcode}"' \[\e[38;5;34m\]'
   fi
 }
 
