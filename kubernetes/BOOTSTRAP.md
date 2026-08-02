@@ -22,7 +22,7 @@ See `kubernetes/cilium/README.md`.
 ## 3. Storage class
 
 ```bash
-kubectl apply -f storage/local-path-expandable.yaml
+kubectl apply -f kubernetes/storage/local-path-expandable.yaml
 ```
 
 Adds an expandable copy of the built-in `local-path` StorageClass and makes it
