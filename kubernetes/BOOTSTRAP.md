@@ -47,27 +47,32 @@ kubectl -n cattle-fleet-system logs -l app=fleet-controller
 
 See `kubernetes/fleet/README.md`.
 
-## 5. MCP servers (via Fleet)
+## 5. MCP servers + MinIO (via Fleet)
 
-One-time GitRepo registration so Fleet watches `kubernetes/mcps/`:
+One-time GitRepo registration so Fleet watches `kubernetes/mcps/` and
+`kubernetes/minio/`:
 
 ```bash
 export GH_TOKEN=<your_github_pat>
-cat kubernetes/fleet/mcps-repo.yaml | envsubst | kubectl apply -f -
+cat kubernetes/fleet/deployments.yaml | envsubst | kubectl apply -f -
 ```
 
-Fleet auto-applies the kustomization from there on — every push to `main`
-touching `kubernetes/mcps/` rolls out automatically, no manual `kubectl apply`.
+Fleet auto-applies both kustomizations from there on — every push to `main`
+touching either path rolls out automatically, no manual `kubectl apply`.
+
+MinIO also needs a one-time credentials Secret (not stored in git) before
+Fleet's Deployment will come up healthy — see `kubernetes/minio/README.md`.
 
 Verify:
 
 ```bash
 kubectl get gitrepo -n fleet-local
 kubectl get pods -n mcp-servers
+kubectl get pods -n minio
 ```
 
 See `kubernetes/mcps/README.md` (includes gotchas around transport/host binding
-for each server).
+for each server) and `kubernetes/minio/README.md`.
 
 ## 6. Register the MCPs with Claude Code
 

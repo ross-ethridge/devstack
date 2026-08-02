@@ -26,7 +26,7 @@ One-time: register the GitRepo so Fleet watches this path:
 
 ```bash
 export GH_TOKEN=<your_github_pat>
-cat ../fleet/mcps-repo.yaml | envsubst | kubectl apply -f -
+cat ../fleet/deployments.yaml | envsubst | kubectl apply -f -
 ```
 
 Fleet auto-detects the `kustomization.yaml` in this directory and applies it
