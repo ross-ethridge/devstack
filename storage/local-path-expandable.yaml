@@ -1,0 +1,22 @@
+# A copy of the built-in "local-path" StorageClass with allowVolumeExpansion
+# enabled. Not patching "local-path" directly: it's owned by k3s's built-in
+# local-storage addon (/var/lib/rancher/k3s/server/manifests/local-storage.yaml),
+# which reverts any edits to that object on node restart. This is a separate
+# object using the same rancher.io/local-path provisioner/controller, so it's
+# left alone and the setting sticks.
+#
+# is-default-class is set here (not by unsetting it on "local-path", which
+# would just get reverted the same way). Kubernetes' rule when more than one
+# class is marked default is "the newest one wins" - since this object won't
+# be recreated, it stays newest and stays the effective default even though
+# `kubectl get storageclass` will still show "local-path" tagged (default) too.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-path-expandable
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: rancher.io/local-path
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true

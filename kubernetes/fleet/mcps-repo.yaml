@@ -7,4 +7,4 @@ spec:
   repo: https://$GH_TOKEN@github.com/ross-ethridge/devstack.git
   branch: main
   paths:
-    - mcps
+    - kubernetes/mcps
