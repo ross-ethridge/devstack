@@ -1,0 +1,10 @@
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  name: devstack-mcps
+  namespace: fleet-local
+spec:
+  repo: https://$GH_TOKEN@github.com/ross-ethridge/devstack.git
+  branch: main
+  paths:
+    - mcps

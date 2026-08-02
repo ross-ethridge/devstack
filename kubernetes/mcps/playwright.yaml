@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-playwright
+  labels:
+    app: mcp-playwright
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcp-playwright
+  template:
+    metadata:
+      labels:
+        app: mcp-playwright
+    spec:
+      containers:
+        - name: mcp-playwright
+          image: mcp/playwright:latest
+          args:
+            - "--headless"
+            - "--browser"
+            - "chromium"
+            - "--no-sandbox"
+            - "--port"
+            - "3001"
+            - "--host"
+            - "0.0.0.0"
+            - "--allowed-hosts"
+            - "*"
+          ports:
+            - name: sse
+              containerPort: 3001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-playwright
+spec:
+  selector:
+    app: mcp-playwright
+  ports:
+    - name: sse
+      port: 3001
+      targetPort: 3001

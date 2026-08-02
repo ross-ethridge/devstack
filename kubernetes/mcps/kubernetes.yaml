@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-kubernetes
+  labels:
+    app: mcp-kubernetes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcp-kubernetes
+  template:
+    metadata:
+      labels:
+        app: mcp-kubernetes
+    spec:
+      serviceAccountName: mcp-cluster-admin
+      containers:
+        - name: mcp-kubernetes
+          image: mcp/kubernetes:latest
+          env:
+            - name: ENABLE_UNSAFE_SSE_TRANSPORT
+              value: "true"
+            - name: PORT
+              value: "3001"
+          ports:
+            - name: sse
+              containerPort: 3001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-kubernetes
+spec:
+  selector:
+    app: mcp-kubernetes
+  ports:
+    - name: sse
+      port: 3001
+      targetPort: 3001

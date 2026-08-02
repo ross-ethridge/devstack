@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-kubectl
+  labels:
+    app: mcp-kubectl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcp-kubectl
+  template:
+    metadata:
+      labels:
+        app: mcp-kubectl
+    spec:
+      serviceAccountName: mcp-cluster-admin
+      containers:
+        - name: mcp-kubectl
+          image: mcp/kubectl-mcp-server:latest
+          args:
+            - "--transport"
+            - "streamable-http"
+            - "--port"
+            - "8000"
+            - "--host"
+            - "0.0.0.0"
+          ports:
+            - name: http
+              containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-kubectl
+spec:
+  selector:
+    app: mcp-kubectl
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000

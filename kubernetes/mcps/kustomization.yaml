@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: mcp-servers
+
+resources:
+  - namespace.yaml
+  - rbac.yaml
+  - kubernetes.yaml
+  - kubectl-mcp-server.yaml
+  - playwright.yaml
+  - ingress.yaml
