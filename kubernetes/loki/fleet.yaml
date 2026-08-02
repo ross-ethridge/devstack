@@ -6,5 +6,9 @@ helm:
   chart: loki
   version: 7.2.0
   createNamespace: true
+  # values.yaml uses ${ACCESS_KEY_ID}/${SECRET_ACCESS_KEY} for Loki's own
+  # -config.expand-env=true - not for Fleet's Go-template preprocessing
+  # (which also uses ${} and would otherwise eat them first).
+  disablePreProcess: true
   valuesFiles:
     - values.yaml
