@@ -6,7 +6,7 @@ Standalone MinIO deployed via kustomize, applied to the cluster by Fleet
 ## What's here
 
 Namespace `minio`, a single-replica `Deployment` + `PersistentVolumeClaim`
-(`local-path-expandable`, 20Gi) + `Service` exposing the S3 API (9000) and
+(`local-path-expandable`, 100Gi) + `Service` exposing the S3 API (9000) and
 console (9001).
 
 ## One-time: root credentials
@@ -38,6 +38,31 @@ automatically. Verify:
 kubectl get gitrepo -n fleet-local
 kubectl -n minio get pods
 ```
+
+## Expanding the volume
+
+Bumping `pvc.yaml`'s `resources.requests.storage` and letting Fleet sync it
+is **not enough** — the PVC will sit at `ExternalExpanding` ("waiting for an
+external controller to expand this PVC") forever. `rancher.io/local-path`
+doesn't implement volume expansion at all; `allowVolumeExpansion: true` on
+the StorageClass just lets the API server accept the resize request, with
+nothing to actually act on it.
+
+This is harmless to work around: the PV is a bare `hostPath` directory with
+no quota enforcement, so the requested size is pure bookkeeping — the
+directory already has access to whatever free space the node's disk has.
+After bumping the size in git (and letting Fleet apply it, or applying
+directly), manually patch the PV and PVC status to match:
+
+```bash
+PV=$(kubectl get pvc minio-data -n minio -o jsonpath='{.spec.volumeName}')
+kubectl patch pv "$PV" -p '{"spec":{"capacity":{"storage":"100Gi"}}}'
+kubectl patch pvc minio-data -n minio --subresource=status \
+  -p '{"status":{"capacity":{"storage":"100Gi"}}}'
+```
+
+`kubectl -n minio describe pvc minio-data` should then show the new
+`Capacity` with no more `ExternalExpanding` event.
 
 ## Reaching it
 
