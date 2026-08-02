@@ -15,6 +15,7 @@ spec:
                 name: minio
                 port:
                   number: 9000
+
     - host: minio-console.localhost
       http:
         paths:
