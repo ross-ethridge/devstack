@@ -9,3 +9,4 @@ spec:
   paths:
     - kubernetes/mcps
     - kubernetes/minio
+    - kubernetes/loki

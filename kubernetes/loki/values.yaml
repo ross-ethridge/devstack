@@ -1,0 +1,75 @@
+# Distributed-mode Loki, 1 replica per component, for learning the production
+deploymentMode: Distributed
+
+# MinIO creds come from the `loki-credentials` Secret (kubectl-created, not in
+# git - same pattern as minio-credentials, see ../minio/README.md) via
+# -config.expand-env=true, which lets Loki's config resolve ${VAR} against
+# the pod's env. global.extraEnvFrom injects it into every component pod
+# since S3 storage config is read by ingester, querier, compactor, etc.
+global:
+  extraArgs:
+    - -config.expand-env=true
+  extraEnvFrom:
+    - secretRef:
+        name: loki-credentials
+
+loki:
+  auth_enabled: false
+  useTestSchema: true   # generates a working tsdb schema_config for the chosen storage type
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: s3
+    bucketNames:
+      chunks: chunks
+      ruler: ruler
+    s3:
+      endpoint: minio.minio.svc.cluster.local:9000
+      region: us-east-1
+      accessKeyId: ${ACCESS_KEY_ID}
+      secretAccessKey: ${SECRET_ACCESS_KEY}
+      s3ForcePathStyle: true
+      insecure: true         # no TLS on local minio
+
+# Not used in Distributed mode, but default to 3 replicas each - zero them out.
+write:
+  replicas: 0
+read:
+  replicas: 0
+backend:
+  replicas: 0
+
+ingester:
+  replicas: 1
+  zoneAwareReplication:
+    enabled: false   # splits replicas across 3 zones by default, pointless with 1 replica
+
+distributor:
+  replicas: 1
+querier:
+  replicas: 1
+queryFrontend:
+  replicas: 1
+queryScheduler:
+  replicas: 1
+indexGateway:
+  replicas: 1
+compactor:
+  replicas: 1
+ruler:
+  replicas: 1
+
+gateway:
+  replicas: 1   # already the default, listed for clarity
+
+# Caches default to sizes meant for real traffic; shrink for a laptop.
+chunksCache:
+  allocatedMemory: 512
+resultsCache:
+  allocatedMemory: 256
+
+# Skip the canary/self-test deployment - not needed for manual experimentation.
+test:
+  enabled: false
+lokiCanary:
+  enabled: false
